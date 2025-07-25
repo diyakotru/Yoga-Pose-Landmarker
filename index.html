@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yoga Pose Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Yoga Pose Landmarker</h1>
+    <p>Upload a short yoga video to extract and store pose landmarks frame by frame.</p>
+
+    <div class="upload-box">
+      <input type="file" id="videoInput" accept="video/*" />
+      <label for="videoInput">Choose Yoga Video</label>
+    </div>
+
+    <video id="videoPlayer" controls></video>
+
+    <div class="actions">
+      <button id="analyzeBtn">Analyze Poses</button>
+      <button id="downloadBtn" disabled>Download Landmark Data</button>
+    </div>
+
+    <div class="output">
+      <h2>Extracted Pose Landmarks</h2>
+      <pre id="landmarkOutput">No data yet...</pre>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
