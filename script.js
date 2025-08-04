@@ -11,6 +11,21 @@ const downloadBtn = document.getElementById("downloadBtn");
 const poseData = [];
 let pose;
 
+//web socket connection
+const socket = new WebSocket("ws://localhost:3000");//web socket backend link add 
+
+socket.addEventListener("open", () => {
+  console.log("WebSocket connected to backend");
+});
+
+socket.addEventListener("close", () => {
+  console.log("WebSocket disconnected");
+});
+
+socket.addEventListener("error", (error) => {
+  console.error("WebSocket Error:", error);
+});
+
 async function init() {
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
@@ -18,7 +33,8 @@ async function init() {
 
   pose = await PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+      modelAssetPath:
+        "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
@@ -45,7 +61,12 @@ function renderFrame() {
       const landmarks = results.landmarks[0];
       poseData.push(landmarks);
 
-      // Drawing landmarks
+      //sending data to backend via web sockets 
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ landmarks }));
+      }
+
+      
       landmarks.forEach((landmark, i) => {
         ctx.beginPath();
         ctx.arc(
@@ -61,18 +82,22 @@ function renderFrame() {
         // Displaying index labels
         ctx.fillStyle = "white";
         ctx.font = "12px Arial";
-        ctx.fillText(i, landmark.x * canvas.width + 5, landmark.y * canvas.height - 5);
+        ctx.fillText(
+          i,
+          landmark.x * canvas.width + 5,
+          landmark.y * canvas.height - 5
+        );
       });
 
       // Drawing connections
       const connections = [
-        [11, 13], [13, 15], // left arm
-        [12, 14], [14, 16], // right arm
-        [11, 12],           // shoulders
-        [23, 24],           // hips
-        [11, 23], [12, 24], // torso
-        [23, 25], [25, 27], [27, 29], // left leg
-        [24, 26], [26, 28], [28, 30]  // right leg
+        [11, 13], [13, 15],
+        [12, 14], [14, 16],
+        [11, 12],
+        [23, 24],
+        [11, 23], [12, 24],
+        [23, 25], [25, 27], [27, 29],
+        [24, 26], [26, 28], [28, 30]
       ];
 
       ctx.strokeStyle = "red";
