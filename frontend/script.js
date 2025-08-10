@@ -11,19 +11,20 @@ const downloadBtn = document.getElementById("downloadBtn");
 const poseData = [];
 let pose;
 
-//web socket connection
-const socket = new WebSocket("ws://localhost:3000");//web socket backend link add 
-
-socket.addEventListener("open", () => {
-  console.log("WebSocket connected to backend");
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"]
 });
 
-socket.addEventListener("close", () => {
-  console.log("WebSocket disconnected");
+socket.on("connect", () => {
+  console.log("Connected to Flask-SocketIO backend");
 });
 
-socket.addEventListener("error", (error) => {
-  console.error("WebSocket Error:", error);
+socket.on("disconnect", () => {
+  console.log("Disconnected from backend");
+});
+
+socket.on("message", (data) => {
+  console.log("Server message:", data);
 });
 
 async function init() {
@@ -61,12 +62,9 @@ function renderFrame() {
       const landmarks = results.landmarks[0];
       poseData.push(landmarks);
 
-      //sending data to backend via web sockets 
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ landmarks }));
-      }
+      // ✅ Send data to backend via Socket.IO
+      socket.emit("landmark_update", { landmarks });
 
-      
       landmarks.forEach((landmark, i) => {
         ctx.beginPath();
         ctx.arc(
@@ -79,7 +77,6 @@ function renderFrame() {
         ctx.fillStyle = "lime";
         ctx.fill();
 
-        // Displaying index labels
         ctx.fillStyle = "white";
         ctx.font = "12px Arial";
         ctx.fillText(
@@ -89,7 +86,6 @@ function renderFrame() {
         );
       });
 
-      // Drawing connections
       const connections = [
         [11, 13], [13, 15],
         [12, 14], [14, 16],
