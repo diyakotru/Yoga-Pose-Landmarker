@@ -62,7 +62,7 @@ function renderFrame() {
       const landmarks = results.landmarks[0];
       poseData.push(landmarks);
 
-      // ✅ Send data to backend via Socket.IO
+      // Send data to backend via Socket.IO
       socket.emit("landmark_update", { landmarks });
 
       landmarks.forEach((landmark, i) => {
