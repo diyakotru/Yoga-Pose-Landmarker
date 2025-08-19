@@ -45,7 +45,7 @@ async function init() {
   renderFrame();
 }
 
-// Utility: Get angle between 3 points (for posture checks)
+// Getting angle between 3 points (for posture checks)
 function getAngle(A, B, C) {
   const AB = { x: A.x - B.x, y: A.y - B.y };
   const CB = { x: C.x - B.x, y: C.y - B.y };
@@ -58,21 +58,21 @@ function getAngle(A, B, C) {
   return (angle * 180) / Math.PI;
 }
 
-// Posture check with detailed feedback
+// Posture check 
 function checkPosture(landmarks) {
   let feedback = [];
 
-  // 1. Back straight (shoulder–hip–knee)
+  // 1. Back straight 
   const backAngle = getAngle(landmarks[11], landmarks[23], landmarks[25]); // left side
   if (backAngle < 160) feedback.push("Back not straight");
 
-  // 2. Arms straight (shoulder–elbow–wrist)
+  // 2. Arms straight
   const leftArm = getAngle(landmarks[11], landmarks[13], landmarks[15]);
   const rightArm = getAngle(landmarks[12], landmarks[14], landmarks[16]);
   if (leftArm < 160) feedback.push("Left arm bent");
   if (rightArm < 160) feedback.push("Right arm bent");
 
-  // 3. Legs straight (hip–knee–ankle)
+  // 3. Legs straight 
   const leftLeg = getAngle(landmarks[23], landmarks[25], landmarks[27]);
   const rightLeg = getAngle(landmarks[24], landmarks[26], landmarks[28]);
   if (leftLeg < 160) feedback.push("Left leg bent");
@@ -91,7 +91,7 @@ function renderFrame() {
       const landmarks = results.landmarks[0];
       poseData.push(landmarks);
 
-      // Send data to backend
+      // Sending data to backend
       socket.emit("landmark_update", { landmarks });
 
       // Posture check
@@ -99,7 +99,7 @@ function renderFrame() {
       const isGood = feedback.length === 0;
       const skeletonColor = isGood ? "lime" : "red";
 
-      // Draw landmarks
+      // Drawing landmarks
       landmarks.forEach((landmark) => {
         ctx.beginPath();
         ctx.arc(
@@ -113,7 +113,7 @@ function renderFrame() {
         ctx.fill();
       });
 
-      // Skeleton connections
+      // connections
       const connections = [
         [11, 13], [13, 15],
         [12, 14], [14, 16],
@@ -135,7 +135,7 @@ function renderFrame() {
         ctx.stroke();
       });
 
-      // Show feedback text
+      // Showing feedback text
       ctx.font = "18px Arial";
       ctx.fillStyle = isGood ? "lime" : "red";
       ctx.fillText(isGood ? "Good Posture" : "Issues detected:", 10, 25);
