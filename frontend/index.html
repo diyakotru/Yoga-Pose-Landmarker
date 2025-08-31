@@ -2,18 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pose-Landmark-Extraction</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Pose Landmark Extraction</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
 </head>
 <body>
-  <h1>Live Pose Detection</h1>
-  <button id="downloadBtn">Download JSON</button>
-
-  <div class="container">
-    <video id="webcam" autoplay playsinline></video>
-    <canvas id="output" width="640" height="480"></canvas>
+  <h1>Pose Landmark Extraction</h1>
+  
+  <div id="recording-section">
+    <div class="media-container">
+      <video id="video" autoplay muted></video>
+      <canvas id="output"></canvas>
+    </div>
   </div>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script type="module" src="script.js"></script>
+  
+  <div id="avatar-container" class="media-container" style="display: none;">
+    </div>
+
+  <div id="controls">
+    <button id="start">Start Recording</button>
+    <button id="play" disabled>Play Avatar</button>
+  </div>
+  
+  <script src="app.js"></script>
+  <script src="avatar.js"></script>
 </body>
+</html>
