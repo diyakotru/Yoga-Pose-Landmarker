@@ -20,14 +20,13 @@ function playAvatar(landmarksData) {
   renderer.setSize(640, 480);
   container.appendChild(renderer.domElement);
 
-  // Add ambient & directional light for better visibility
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
   scene.add(ambientLight);
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
   directionalLight.position.set(1, 2, 3);
   scene.add(directionalLight);
 
-  // Skeleton connections (MediaPipe Pose)
+  // Skeleton connections 
   const connections = [
     [11, 13], [13, 15], [12, 14], [14, 16],
     [11, 12], [23, 24], [11, 23], [12, 24],
