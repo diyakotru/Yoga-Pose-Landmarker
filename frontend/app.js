@@ -14,7 +14,7 @@ const playBtn = document.getElementById("play");
 // Initial UI state
 recordingSection.style.display = "block";
 avatarContainer.style.display = "none";
-canvasElement.style.display = "block"; // Ensure canvas is visible initially
+canvasElement.style.display = "block"; 
 
 // Send landmarks data to backend
 async function sendDataToBackend(data) {
@@ -37,17 +37,17 @@ pose.setOptions({
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
-
 pose.onResults((results) => {
-  if (videoElement.style.display !== "none") { // Only draw if video is visible
+  // Only draw if video is visible
+  if (videoElement.style.display !== "none") {
+    // Clear the canvas to prepare for the new frame
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    // Draw the camera feed onto the canvas
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-    if (results.poseLandmarks) {
-      drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
-      drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 2 });
-    }
   }
 
+  // collect landmarks data if recording
   if (recording && results.poseLandmarks) {
     let timestamp = Date.now() - startTime;
     landmarksData.push(results.poseLandmarks);
