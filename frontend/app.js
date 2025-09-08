@@ -186,5 +186,5 @@ async function playAvatar() {
   animate();
 }
 
-// --- Initialize ---
+// Initialize 
 updatePlayButtonState();
