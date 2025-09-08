@@ -1,31 +1,50 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os, json, time
+import sqlite3
+import json
 
 app = Flask(__name__)
-CORS(app)  # ✅ Enable CORS
+CORS(app)  # allow requests from all origins
 
-DATA_DIR = "backend/data"
+# Initialize SQLite db
+DB_FILE = "landmarks.db"
 
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS landmarks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
 
+init_db()
+
+# Upload landmarks
 @app.route("/upload_landmarks", methods=["POST"])
 def upload_landmarks():
     data = request.json
-    timestamp = int(time.time())
-    filepath = os.path.join(DATA_DIR, f"landmarks_{timestamp}.json")
-    with open(filepath, "w") as f:
-        json.dump(data, f)
-    return jsonify({"status": "saved", "file": filepath})
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("INSERT INTO landmarks (data) VALUES (?)", (json.dumps(data),))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "saved"})
 
+# Get all landmarks
 @app.route("/get_landmarks", methods=["GET"])
 def get_landmarks():
-    files = sorted(os.listdir(DATA_DIR))
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT data FROM landmarks ORDER BY id ASC")
+    rows = c.fetchall()
     all_data = []
-    for f in files:
-        with open(os.path.join(DATA_DIR, f)) as file:
-            all_data.extend(json.load(file))
+    for row in rows:
+        all_data.extend(json.loads(row[0]))
+    conn.close()
     return jsonify(all_data)
 
 if __name__ == "__main__":
