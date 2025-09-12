@@ -40,7 +40,7 @@ async function fetchLandmarksFromBackend() {
   }
 }
 
-//Mediapipe Pose Setup 
+// Mediapipe Pose Setup 
 const pose = new Pose({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
 });
@@ -71,13 +71,13 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-//Update Play Button 
+// Update Play Button 
 async function updatePlayButtonState() {
   const data = await fetchLandmarksFromBackend();
   playBtn.disabled = data.length === 0;
 }
 
-//Start Recording
+// Start Recording
 startBtn.addEventListener("click", () => {
   recording = true;
   landmarksData = [];
@@ -111,7 +111,7 @@ playBtn.addEventListener("click", async () => {
   await playAvatar();
 });
 
-//Avatar Playback
+// Avatar Playback
 async function playAvatar() {
   avatarContainer.innerHTML = "";
   avatarContainer.style.border = "2px solid #ccc";
@@ -130,7 +130,8 @@ async function playAvatar() {
   scene.background = new THREE.Color(0x1e1e1e);
 
   const camera = new THREE.PerspectiveCamera(75, 640/480, 0.1, 1000);
-  camera.position.z = 2;
+  camera.position.z = 3.5;
+  camera.position.y = 0.5;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(640, 480);
@@ -167,19 +168,32 @@ async function playAvatar() {
     return sphere;
   });
 
+  // Convert normalized Mediapipe landmark to 3D Three.js position
+  function to3D(point) {
+    const scale = 2; 
+    return new THREE.Vector3(
+      (point.x - 0.5) * scale,   // center X
+      -(point.y - 0.5) * scale,  // invert Y, center
+      -point.z * scale           // invert Z so avatar faces camera
+    );
+  }
+
   let frame = 0;
   function animate() {
     requestAnimationFrame(animate);
-    if (frame < landmarksData.length) {
+    if (landmarksData.length > 0) {
       const lm = landmarksData[frame];
       connections.forEach((conn,i)=>{
         const [a,b] = conn;
-        const pointA = new THREE.Vector3(lm[a].x-0.5, -lm[a].y+0.5, lm[a].z);
-        const pointB = new THREE.Vector3(lm[b].x-0.5, -lm[b].y+0.5, lm[b].z);
-        bones[i].geometry.setFromPoints([pointA,pointB]);
+        const pointA = to3D(lm[a]);
+        const pointB = to3D(lm[b]);
+        bones[i].geometry.setFromPoints([pointA, pointB]);
       });
-      lm.forEach((point,i)=>joints[i].position.set(point.x-0.5, -point.y+0.5, point.z));
-      frame++;
+      lm.forEach((p,i)=>{
+        const pos = to3D(p);
+        joints[i].position.copy(pos);
+      });
+      frame = (frame + 1) % landmarksData.length; // loop playback
     }
     renderer.render(scene,camera);
   }
