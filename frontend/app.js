@@ -17,7 +17,7 @@ avatarContainer.style.display = "none";
 canvasElement.style.display = "block"; 
 playBtn.disabled = true;
 
-// --- Backend Fetch Functions ---
+// Backend Fetch Function
 async function sendDataToBackend(data) {
   try {
     await fetch("http://127.0.0.1:5000/upload_landmarks", {
@@ -40,7 +40,7 @@ async function fetchLandmarksFromBackend() {
   }
 }
 
-// --- Mediapipe Pose Setup ---
+//Mediapipe Pose Setup 
 const pose = new Pose({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
 });
@@ -63,7 +63,7 @@ pose.onResults((results) => {
   }
 });
 
-// --- Camera Setup ---
+// Camera Setup 
 const camera = new Camera(videoElement, {
   onFrame: async () => await pose.send({ image: videoElement }),
   width: 640,
@@ -71,13 +71,13 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// --- Update Play Button ---
+//Update Play Button 
 async function updatePlayButtonState() {
   const data = await fetchLandmarksFromBackend();
   playBtn.disabled = data.length === 0;
 }
 
-// --- Start Recording ---
+//Start Recording
 startBtn.addEventListener("click", () => {
   recording = true;
   landmarksData = [];
@@ -102,7 +102,7 @@ startBtn.addEventListener("click", () => {
   }, 30000);
 });
 
-// --- Play Avatar ---
+// Play Avatar
 playBtn.addEventListener("click", async () => {
   videoElement.style.display = "none";
   canvasElement.style.display = "none";
@@ -111,7 +111,7 @@ playBtn.addEventListener("click", async () => {
   await playAvatar();
 });
 
-// --- Avatar Playback ---
+//Avatar Playback
 async function playAvatar() {
   avatarContainer.innerHTML = "";
   avatarContainer.style.border = "2px solid #ccc";
