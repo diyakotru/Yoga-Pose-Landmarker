@@ -43,7 +43,7 @@ def get_landmarks():
     rows = c.fetchall()
     all_data = []
     for row in rows:
-        all_data.extend(json.loads(row[0]))
+        all_data.append(json.loads(row[0]))  
     conn.close()
     return jsonify(all_data)
 
