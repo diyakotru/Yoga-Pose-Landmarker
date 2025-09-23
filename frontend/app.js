@@ -17,7 +17,7 @@ avatarContainer.style.display = "none";
 canvasElement.style.display = "block"; 
 playBtn.disabled = true;
 
-// --- Backend Fetch Functions ---
+// Backend Fetch Functions 
 async function sendDataToBackend(data) {
   try {
     await fetch("http://127.0.0.1:5000/upload_landmarks", {
@@ -33,14 +33,14 @@ async function sendDataToBackend(data) {
 async function fetchLandmarksFromBackend() {
   try {
     const response = await fetch("http://127.0.0.1:5000/get_landmarks");
-    return await response.json();
+    return await response.json();  
   } catch (err) {
     console.error("Failed to fetch landmarks:", err);
     return [];
   }
 }
 
-// --- Mediapipe Pose Setup ---
+//Mediapipe Pose Setup 
 const pose = new Pose({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
 });
@@ -63,7 +63,7 @@ pose.onResults((results) => {
   }
 });
 
-// --- Camera Setup ---
+// Camera Setup 
 const camera = new Camera(videoElement, {
   onFrame: async () => await pose.send({ image: videoElement }),
   width: 640,
@@ -71,13 +71,13 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// --- Update Play Button ---
+// Update Play Button 
 async function updatePlayButtonState() {
   const data = await fetchLandmarksFromBackend();
   playBtn.disabled = data.length === 0;
 }
 
-// --- Start Recording ---
+// Start Recording 
 startBtn.addEventListener("click", () => {
   recording = true;
   landmarksData = [];
@@ -102,7 +102,7 @@ startBtn.addEventListener("click", () => {
   }, 30000);
 });
 
-// --- Play Avatar ---
+// Play Avatar 
 playBtn.addEventListener("click", async () => {
   videoElement.style.display = "none";
   canvasElement.style.display = "none";
@@ -111,7 +111,7 @@ playBtn.addEventListener("click", async () => {
   await playAvatar();
 });
 
-// --- Avatar Playback ---
+// Avatar Playback 
 async function playAvatar() {
   avatarContainer.innerHTML = "";
   avatarContainer.style.border = "2px solid #ccc";
@@ -123,8 +123,12 @@ async function playAvatar() {
   avatarContainer.style.justifyContent = "center";
   avatarContainer.style.alignItems = "center";
 
-  const landmarksData = await fetchLandmarksFromBackend();
-  if (!landmarksData.length) return console.warn("No landmarks found");
+  //  fetching all recordings
+  const recordings = await fetchLandmarksFromBackend();
+  if (!recordings.length) return console.warn("No landmarks found");
+
+  // last recording play
+  const landmarksData = recordings[recordings.length - 1];
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1e1e1e);
@@ -168,21 +172,32 @@ async function playAvatar() {
   });
 
   let frame = 0;
+
   function animate() {
-    requestAnimationFrame(animate);
-    if (frame < landmarksData.length) {
-      const lm = landmarksData[frame];
-      connections.forEach((conn,i)=>{
-        const [a,b] = conn;
-        const pointA = new THREE.Vector3(lm[a].x-0.5, -lm[a].y+0.5, lm[a].z);
-        const pointB = new THREE.Vector3(lm[b].x-0.5, -lm[b].y+0.5, lm[b].z);
-        bones[i].geometry.setFromPoints([pointA,pointB]);
-      });
-      lm.forEach((point,i)=>joints[i].position.set(point.x-0.5, -point.y+0.5, point.z));
-      frame++;
-    }
-    renderer.render(scene,camera);
+    setTimeout(() => {
+      requestAnimationFrame(animate);
+
+      if (frame < landmarksData.length) {
+        const lm = landmarksData[frame];
+
+        // update bones
+        connections.forEach((conn,i)=>{
+          const [a,b] = conn;
+          const pointA = new THREE.Vector3(lm[a].x - 0.5, -lm[a].y + 0.5, lm[a].z);
+          const pointB = new THREE.Vector3(lm[b].x - 0.5, -lm[b].y + 0.5, lm[b].z);
+          bones[i].geometry.setFromPoints([pointA,pointB]);
+        });
+
+        // update joints
+        lm.forEach((point,i)=>joints[i].position.set(point.x - 0.5, -point.y + 0.5, point.z));
+
+        frame++;
+      }
+
+      renderer.render(scene,camera);
+    }, 33); // 30fps playback
   }
+  frame = 0; // reset before starting
   animate();
 }
 
