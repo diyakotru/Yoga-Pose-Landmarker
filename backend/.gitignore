@@ -1,2 +1,2 @@
-.venv/
-landmarks.db
+# Backend-specific files (main .gitignore at root covers most items)
+# Add any backend-specific ignores here if needed

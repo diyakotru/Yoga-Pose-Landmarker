@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button Test</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <h1>Button Test</h1>
+    
+    <div class="controls-section">
+      <div class="controls">
+        <button id="start-btn" class="btn btn-primary">
+          Start Recording
+        </button>
+        <button id="stop-btn" class="btn btn-danger">
+          Stop Recording
+        </button>
+        <button id="stop-btn-hidden" class="btn btn-danger hidden">
+          Stop Recording (Hidden)
+        </button>
+      </div>
+    </div>
+    
+    <script>
+      document.getElementById('start-btn').addEventListener('click', () => {
+        console.log('Start clicked');
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'block';
+        document.getElementById('stop-btn').classList.remove('hidden');
+      });
+      
+      document.getElementById('stop-btn').addEventListener('click', () => {
+        console.log('Stop clicked');
+        document.getElementById('start-btn').style.display = 'block';
+        document.getElementById('stop-btn').style.display = 'none';
+        document.getElementById('stop-btn').classList.add('hidden');
+      });
+    </script>
+  </div>
+</body>
+</html>

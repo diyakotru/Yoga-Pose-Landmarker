@@ -24,10 +24,17 @@ export class UIManager {
   }
 
   private setupInitialState(): void {
-    // Initialize button states
-    this.elements.startBtn.style.display = 'block';
-    this.elements.stopBtn.style.display = 'none';
+    console.log('[UI] Setting up initial state...');
+    
+    // Initialize button states explicitly
+    this.elements.startBtn.style.display = 'inline-flex';
+    this.elements.startBtn.style.visibility = 'visible';
     this.elements.startBtn.disabled = true; // Disabled until camera is ready
+    
+    // Make sure stop button is properly hidden initially
+    this.elements.stopBtn.style.display = 'none';
+    this.elements.stopBtn.style.visibility = 'hidden';
+    this.elements.stopBtn.classList.add('hidden');
     
     // Status display styling
     this.elements.statusDisplay.className = 'status-display waiting';
@@ -40,6 +47,8 @@ export class UIManager {
 
     this.state.isInitialized = true;
     this.updateStatus('Loading camera...');
+    
+    console.log('[UI] Initial state setup complete');
   }
 
   updateStatus(message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info'): void {
@@ -71,32 +80,62 @@ export class UIManager {
   }
 
   setRecordingState(isRecording: boolean): void {
+    console.log('[UI] Setting recording state:', isRecording);
     this.state.isRecording = isRecording;
 
     if (isRecording) {
-      // Recording state
+      // Recording state - Show stop button, hide start button
+      console.log('[UI] Showing stop button, hiding start button');
       this.elements.startBtn.style.display = 'none';
-      this.elements.stopBtn.style.display = 'block';
+      this.elements.startBtn.style.visibility = 'hidden';
+      
+      // Show stop button explicitly
+      this.elements.stopBtn.style.display = 'inline-flex';
+      this.elements.stopBtn.style.visibility = 'visible';
       this.elements.stopBtn.disabled = false;
+      this.elements.stopBtn.classList.remove('hidden');
       
+      console.log('[UI] Stop button styles:', {
+        display: this.elements.stopBtn.style.display,
+        visibility: this.elements.stopBtn.style.visibility,
+        classList: this.elements.stopBtn.className,
+        disabled: this.elements.stopBtn.disabled
+      });
+
       this.updateStatus('Recording... Click Stop when finished', 'warning');
-      
+
+      // Update camera status badge
+      if (this.elements.cameraStatus) {
+        this.elements.cameraStatus.textContent = 'Recording';
+        this.elements.cameraStatus.className = 'info-badge recording';
+      }
+
       if (this.elements.poseCanvas) {
         this.elements.poseCanvas.style.border = '2px solid #f59e0b';
       }
     } else {
-      // Stopped state  
-      this.elements.startBtn.style.display = 'block';
-      this.elements.stopBtn.style.display = 'none';
+      // Stopped state - Show start button, hide stop button
+      console.log('[UI] Showing start button, hiding stop button');
+      this.elements.startBtn.style.display = 'inline-flex';
+      this.elements.startBtn.style.visibility = 'visible';
       this.elements.startBtn.disabled = false;
       
+      // Hide stop button explicitly
+      this.elements.stopBtn.style.display = 'none';
+      this.elements.stopBtn.style.visibility = 'hidden';
+      this.elements.stopBtn.classList.add('hidden');
+
+      // Reset camera status badge
+      if (this.elements.cameraStatus) {
+        this.elements.cameraStatus.textContent = 'Live Detection';
+        this.elements.cameraStatus.className = 'info-badge';
+      }
+
       if (this.elements.poseCanvas) {
         this.elements.poseCanvas.style.border = '2px solid #10b981';
       }
     }
-  }
-
-  showRecordingComplete(frameCount: number, duration: number): void {
+  }  showRecordingComplete(frameCount: number, duration: number): void {
     const durationSeconds = Math.round(duration / 1000 * 100) / 100;
     this.updateStatus(
       `Recording complete: ${frameCount} frames, ${durationSeconds}s`, 

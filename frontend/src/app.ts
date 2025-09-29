@@ -45,12 +45,23 @@ class PoseLandmarkApp {
   }
 
   private initializeElements(): void {
+    console.log('[App] Initializing DOM elements...');
+    
     const videoElement = document.getElementById("video") as HTMLVideoElement;
     const poseCanvas = document.getElementById("pose-canvas") as HTMLCanvasElement;
     const avatarContainer = document.getElementById("avatar-container") as HTMLElement;
     const startBtn = document.getElementById("start-btn") as HTMLButtonElement;
     const stopBtn = document.getElementById("stop-btn") as HTMLButtonElement;
     const statusDisplay = document.getElementById("status-display") as HTMLElement;
+
+    console.log('[App] Found elements:', {
+      video: !!videoElement,
+      canvas: !!poseCanvas,
+      avatar: !!avatarContainer,
+      startBtn: !!startBtn,
+      stopBtn: !!stopBtn,
+      status: !!statusDisplay
+    });
 
     if (!videoElement || !poseCanvas || !avatarContainer || 
         !startBtn || !stopBtn || !statusDisplay) {
@@ -74,6 +85,8 @@ class PoseLandmarkApp {
       cameraStatus: document.getElementById("camera-status") as HTMLElement,
       statusDisplay
     };
+    
+    console.log('[App] Elements initialized successfully');
   }
 
   private initializeServices(): void {
@@ -172,12 +185,13 @@ class PoseLandmarkApp {
 
   private async handleStartRecording(): Promise<void> {
     try {
+      console.log('[App] Starting recording...');
       this.uiManager.setRecordingState(true);
       this.recordingManager.startRecording();
       
-      console.log('Recording started');
+      console.log('[App] Recording started successfully');
     } catch (error) {
-      console.error('Recording failed:', error);
+      console.error('[App] Recording failed:', error);
       this.uiManager.handleError('Recording failed. Please try again.');
       this.uiManager.setRecordingState(false);
     }
