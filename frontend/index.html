@@ -2,31 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pose Landmark Extraction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- MediaPipe Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
+  
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-  <h1>Pose Landmark Extraction</h1>
-  
-  <div id="recording-section">
-    <div class="media-container">
-      <video id="video" autoplay muted></video>
-      <canvas id="output"></canvas>
-    </div>
-  </div>
-  
-  <div id="avatar-container" class="media-container" style="display: none;">
+  <!-- Main container -->
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">
+        <span class="gradient-text">Pose Landmark</span> Extraction
+      </h1>
+      <div id="status-display" class="status-display">Ready to record</div>
+    </header>
+
+    <!-- Main content area -->
+    <main class="main-content">
+      <div class="dual-view-container">
+        <!-- Left side: Live camera feed -->
+        <div class="camera-section">
+          <div class="camera-container">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="pose-canvas" class="pose-overlay"></canvas>
+            <div class="camera-info">
+              <span class="info-badge" id="camera-status">Live Detection</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: Avatar rendering -->
+        <div class="avatar-section">
+          <div id="avatar-container" class="avatar-container">
+            <div class="avatar-placeholder">
+              <div class="placeholder-icon">🎭</div>
+              <p>Avatar will appear here during playback</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Progress section -->
+    <div id="progress-container" class="progress-container hidden">
+      <div class="progress-label">Recording...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-text" id="progress-text">0s</span>
     </div>
 
-  <div id="controls">
-    <button id="start">Start Recording</button>
-    <button id="play" disabled>Play Avatar</button>
+    <!-- Controls -->
+    <div class="controls-section">
+      <div id="controls" class="controls">
+        <button id="start-btn" class="btn btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          Start Recording
+        </button>
+        <button id="stop-btn" class="btn btn-danger hidden">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12"/>
+          </svg>
+          Stop Recording
+        </button>
+        <button id="play-btn" class="btn btn-secondary" disabled>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+          Play Avatar
+        </button>
+        <button id="clear-btn" class="btn btn-outline">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/>
+          </svg>
+          Clear
+        </button>
+      </div>
+    </div>
   </div>
-  
-  <script src="app.js"></script>
+
+  <!-- Loading overlay -->
+  <div id="loading-indicator" class="loading-overlay hidden">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Processing...</p>
+    </div>
+  </div>
+
+  <!-- TypeScript compiled output -->
+  <script type="module" src="dist/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+{
+  "name": "pose-landmark-frontend",
+  "version": "1.0.0",
+  "description": "Pose Landmark Extraction Frontend",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "serve": "npx http-server . -p 8080",
+    "dev": "concurrently \"tsc --watch\" \"npx http-server . -p 8080\"",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "prettier": "^3.0.0",
+    "concurrently": "^8.0.0",
+    "http-server": "^14.0.0"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  }
+}
