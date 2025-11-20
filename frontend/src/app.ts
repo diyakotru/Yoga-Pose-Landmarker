@@ -12,6 +12,7 @@ class PoseLandmarkApp {
   private avatarRenderer!: AvatarRenderer;
   private recordingManager!: RecordingManager;
   private elements!: UIElements;
+  private socketStreaming: boolean = false;
 
   constructor() {
     this.initializeApp();
@@ -180,6 +181,16 @@ class PoseLandmarkApp {
       // Update recording time display
       const recordingTime = this.recordingManager.getRecordingTime();
       this.uiManager.updateRecordingTime(recordingTime);
+
+      // If streaming via socket, send frame immediately (best-effort)
+      if (this.socketStreaming) {
+        try {
+          (this.backendService as any).sendFrame(results.poseLandmarks);
+        } catch (err) {
+          // Non-fatal: log and continue recording locally
+          console.warn('Failed to send frame over socket:', err);
+        }
+      }
     }
   }
 
@@ -187,8 +198,20 @@ class PoseLandmarkApp {
     try {
       console.log('[App] Starting recording...');
       this.uiManager.setRecordingState(true);
+
+      // Try to connect socket and start streaming. If it fails, fall back to REST.
+      try {
+        await (this.backendService as any).connectSocket();
+        (this.backendService as any).startStream({ client: 'frontend', startedAt: Date.now() });
+        this.socketStreaming = true;
+        console.info('[App] Streaming enabled (Socket.IO)');
+      } catch (err) {
+        console.warn('[App] Socket streaming unavailable, falling back to REST upload', err);
+        this.socketStreaming = false;
+      }
+
       this.recordingManager.startRecording();
-      
+
       console.log('[App] Recording started successfully');
     } catch (error) {
       console.error('[App] Recording failed:', error);
@@ -206,8 +229,24 @@ class PoseLandmarkApp {
       const stats = this.recordingManager.getStats();
       this.uiManager.showRecordingComplete(stats.frameCount, stats.duration);
       
-      // Process the recording
-      await this.processRecording(landmarksData);
+      // If we used socket streaming, finalize the stream on the server
+      if (this.socketStreaming) {
+        try {
+          const saveResult = await (this.backendService as any).endStream({ client: 'frontend', savedAt: Date.now() });
+          console.log('Stream saved via socket:', saveResult);
+          this.uiManager.showSaveComplete();
+          // Disconnect socket after finishing
+          try { (this.backendService as any).disconnectSocket(); } catch {}
+          this.socketStreaming = false;
+        } catch (err) {
+          console.warn('Socket end_stream failed, falling back to REST upload', err);
+          // Fallback to REST upload
+          await this.processRecording(landmarksData);
+        }
+      } else {
+        // Process the recording via REST
+        await this.processRecording(landmarksData);
+      }
       
       console.log(`Recording completed: ${landmarksData.length} frames captured`);
     } catch (error) {
@@ -387,8 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (!window.Camera) {
-    console.error('MediaPipe Camera not loaded');
-    return;
+    // Camera helper not present — we'll fall back to navigator.mediaDevices.getUserMedia.
+    console.warn('MediaPipe Camera helper not loaded; falling back to getUserMedia');
   }
 
   if (!window.THREE) {

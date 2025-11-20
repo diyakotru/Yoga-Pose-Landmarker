@@ -5,6 +5,7 @@ declare class PoseLandmarkApp {
     private avatarRenderer;
     private recordingManager;
     private elements;
+    private socketStreaming;
     constructor();
     private initializeApp;
     private initializeElements;
