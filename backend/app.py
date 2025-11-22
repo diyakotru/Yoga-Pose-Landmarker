@@ -7,6 +7,7 @@ import datetime
 from typing import List, Dict, Any
 import logging
 
+# http://127.0.0.1:8080 
 app = Flask(__name__)
 CORS(app)  # allow requests from all origins
 
